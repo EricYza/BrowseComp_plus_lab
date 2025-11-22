@@ -238,15 +238,22 @@ def main():
     )
 
     llm_cfg = {
+        # 这里的 model 会原样传给你的 litellm 服务
         'model': model,
+        # 指定 OpenAI 兼容的服务器地址（你学长给你的 api_base）
+        'model_server': 'http://666.666.666.666:66666/v1',  # 就是原来的 api_base
+
+        # litellm 这类一般不校验 api_key，你可以随便写或用环境变量
+        'api_key': 'EMPTY',
+
         'generate_cfg': {
             'max_input_tokens': 320000,
             'max_retries': 10,
             'temperature': args.temperature,
             'top_p': args.top_p,
-            'presence_penalty': args.presence_penalty
-        },
-        'model_type': 'qwen_dashscope'
+            'presence_penalty': args.presence_penalty,
+        }
+        # 注意：这里**不要再写** 'model_type': 'qwen_dashscope'
     }
 
     agent = MultiTurnReactAgent(

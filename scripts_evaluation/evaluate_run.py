@@ -7,10 +7,10 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
-
+import litellm
 import numpy as np
 from tqdm import tqdm
-from vllm import LLM, SamplingParams
+#from vllm import LLM, SamplingParams
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -457,13 +457,25 @@ def main():
     all_results = []
 
     # Initialize vLLM engine and sampling params
-    llm = LLM(model=args.model, tensor_parallel_size=args.tensor_parallel_size)
-    sampling_params = SamplingParams(
-        temperature=args.temperature,
-        top_p=args.top_p,
-        top_k=args.top_k,
-        max_tokens=args.max_output_tokens,
-    )
+    #llm = LLM(model=args.model, tensor_parallel_size=args.tensor_parallel_size)
+
+    def call_remote_llm(prompt, api_base, model):
+        messages = [{"role": "user", "content": prompt}]
+        response = litellm.completion(
+            model=model,
+            messages=messages,
+            api_base=api_base,
+            temperature=0.6,
+            max_tokens=4096,
+        )
+        return response.choices[0].message.content
+
+    # sampling_params = SamplingParams(
+    #     temperature=args.temperature,
+    #     top_p=args.top_p,
+    #     top_k=args.top_k,
+    #     max_tokens=args.max_output_tokens,
+    # )
 
     detected_model_name: Optional[str] = None
     first_run_path: Optional[Path] = json_files[0] if json_files else None
@@ -520,7 +532,7 @@ def main():
         ):
             response = run_data["result"][-1]["output"]
 
-        if response == "" or not is_completed:
+        if response == "": #or not is_completed:
             result = {
                 "json_path": str(json_path),
                 "query_id": query_id,
@@ -576,17 +588,20 @@ def main():
             [{"role": "user", "content": item["judge_prompt"]}] for item in batch
         ]
         try:
-            outputs = llm.chat(
-                messages_list,
-                sampling_params,
-                chat_template_kwargs={"enable_thinking": False},
-            )
+            # outputs = llm.chat(
+            #     messages_list,
+            #     sampling_params,
+            #     chat_template_kwargs={"enable_thinking": False},
+            # )
+            outputs = [call_remote_llm(msgs[0]["content"], "http://666.666.666.666:66666/v1", args.model)
+                        for msgs in messages_list]
         except Exception as e:
             print(f"Error running vLLM batch {i}//{args.batch_size}: {e}")
             continue
 
         for item, out in zip(batch, outputs or []):
-            judge_text = ""
+            if isinstance(out, str):
+                judge_text = out
             try:
                 if getattr(out, "outputs", None):
                     judge_text = out.outputs[0].text or ""

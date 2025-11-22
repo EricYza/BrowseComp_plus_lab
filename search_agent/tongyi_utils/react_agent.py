@@ -65,10 +65,10 @@ class MultiTurnReactAgent(FnCallAgent):
     def sanity_check_output(self, content):
         return "<think>" in content and "</think>" in content
     
-    def call_server(self, msgs, planning_port, max_tries=10):
+    def call_server(self, msgs, planning_port, max_tries=2):
         
         openai_api_key = "EMPTY"
-        openai_api_base = f"http://127.0.0.1:{planning_port}/v1"
+        openai_api_base = f"http://666.666.666.666:66666/v1"
 
         client = OpenAI(
             api_key=openai_api_key,
