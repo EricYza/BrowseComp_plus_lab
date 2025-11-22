@@ -1,1 +1,2 @@
 python search_agent/tongyi_client.py --searcher-type bm25 --index-path indexes/bm25 --output-dir runs/bm25/tongyi --num-threads 10 --query topics-qrels/queries.tsv
+python scripts_evaluation/evaluate_run.py --input_dir runs/bm25/tongyi --model hosted_vllm/Alibaba-NLP/Tongyi-DeepResearch-30B-A3B
