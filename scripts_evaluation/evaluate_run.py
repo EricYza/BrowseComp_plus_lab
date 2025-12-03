@@ -595,7 +595,7 @@ def main():
             # )
             outputs = [
                 call_remote_llm(
-                    msgs[0]["content"], " http://129.153.235.109:20003/v1", args.model
+                    msgs[0]["content"], "http://666.666.666.666:66666/v1", args.model
                 )
                 for msgs in messages_list
             ]

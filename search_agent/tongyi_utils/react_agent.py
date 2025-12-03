@@ -68,9 +68,7 @@ class MultiTurnReactAgent(FnCallAgent):
     def call_server(self, msgs, planning_port, max_tries=2):
 
         openai_api_key = "EMPTY"
-        openai_api_base = (
-            f"http://129.153.235.109:20003/v1"
-        )
+        openai_api_base = f"http://666.666.666.666:66666/v1"
 
         client = OpenAI(
             api_key=openai_api_key,
