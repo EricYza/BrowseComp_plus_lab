@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 import litellm
 import numpy as np
 from tqdm import tqdm
-#from vllm import LLM, SamplingParams
+# from vllm import LLM, SamplingParams
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -457,7 +457,7 @@ def main():
     all_results = []
 
     # Initialize vLLM engine and sampling params
-    #llm = LLM(model=args.model, tensor_parallel_size=args.tensor_parallel_size)
+    # llm = LLM(model=args.model, tensor_parallel_size=args.tensor_parallel_size)
 
     def call_remote_llm(prompt, api_base, model):
         messages = [{"role": "user", "content": prompt}]
@@ -593,8 +593,12 @@ def main():
             #     sampling_params,
             #     chat_template_kwargs={"enable_thinking": False},
             # )
-            outputs = [call_remote_llm(msgs[0]["content"], "http://666.666.666.666:66666/v1", args.model)
-                        for msgs in messages_list]
+            outputs = [
+                call_remote_llm(
+                    msgs[0]["content"], " http://129.153.235.109:20003/v1", args.model
+                )
+                for msgs in messages_list
+            ]
         except Exception as e:
             print(f"Error running vLLM batch {i}//{args.batch_size}: {e}")
             continue

@@ -64,11 +64,13 @@ class MultiTurnReactAgent(FnCallAgent):
 
     def sanity_check_output(self, content):
         return "<think>" in content and "</think>" in content
-    
+
     def call_server(self, msgs, planning_port, max_tries=2):
-        
+
         openai_api_key = "EMPTY"
-        openai_api_base = f"http://666.666.666.666:66666/v1"
+        openai_api_base = (
+            f"http://129.153.235.109:20003/v1"
+        )
 
         client = OpenAI(
             api_key=openai_api_key,
@@ -77,7 +79,7 @@ class MultiTurnReactAgent(FnCallAgent):
         )
 
         base_sleep_time = 1 
-        
+
         for attempt in range(max_tries):
             try:
                 print(f"--- Attempting to call the service, try {attempt + 1}/{max_tries} ---")
@@ -106,12 +108,12 @@ class MultiTurnReactAgent(FnCallAgent):
             if attempt < max_tries - 1:
                 sleep_time = base_sleep_time * (2 ** attempt) + random.uniform(0, 1)
                 sleep_time = min(sleep_time, 30) 
-                
+
                 print(f"Retrying in {sleep_time:.2f} seconds...")
                 time.sleep(sleep_time)
             else:
                 print("Error: All retry attempts have been exhausted. The call has failed.")
-        
+
         return f"vllm server error!!!"
 
     def count_tokens(self, messages, model="gpt-4o"):
@@ -119,10 +121,10 @@ class MultiTurnReactAgent(FnCallAgent):
             tokenizer = AutoTokenizer.from_pretrained(self.llm_local_path) 
         except Exception as e: 
             tokenizer = tiktoken.encoding_for_model(model)
-        
+
         full_message = [Message(**x) for x in messages]
         full_prompt = build_text_completion_prompt(full_message, allow_special=True)
-        
+
         return len(tokenizer.encode(full_prompt))
 
     def _run(self, data: str, model: str, **kwargs) -> List[List[Message]]:
@@ -202,7 +204,7 @@ class MultiTurnReactAgent(FnCallAgent):
 
             if token_count > max_tokens:
                 print(f"Token quantity exceeds the limit: {token_count} > {max_tokens}")
-                
+
                 messages[-1]['content'] = "You have now reached the maximum context length you can handle. You should stop making tool calls and, based on all the information above, think again and provide what you consider the most likely answer in the following format:<think>your final thinking</think>\n<answer>your answer</answer>"
                 content = self.call_server(messages, planning_port)
                 messages.append({"role": "assistant", "content": content.strip()})
